@@ -18,10 +18,14 @@ function toggleCSS(tab) {
       browser.pageAction.setIcon({ tabId: tab.id, path: "icons/off.png" });
       browser.pageAction.setTitle({ tabId: tab.id, title: TITLE_REMOVE });
       browser.tabs.insertCSS({ code: CSS });
+      // Save state to storage
+      browser.storage.local.set({ ["elm_debug_hidden"]: true });
     } else {
       browser.pageAction.setIcon({ tabId: tab.id, path: "icons/on.png" });
       browser.pageAction.setTitle({ tabId: tab.id, title: TITLE_APPLY });
       browser.tabs.removeCSS({ code: CSS });
+      // Save state to storage
+      browser.storage.local.set({ ["elm_debug_hidden"]: false });
     }
   }
 
@@ -47,6 +51,15 @@ function initializePageAction(tab) {
     browser.pageAction.setIcon({ tabId: tab.id, path: "icons/on.png" });
     browser.pageAction.setTitle({ tabId: tab.id, title: TITLE_APPLY });
     browser.pageAction.show(tab.id);
+
+    // Check state from storage
+    browser.storage.local.get("elm_debug_hidden").then((result) => {
+      if (result["elm_debug_hidden"]) {
+        browser.tabs.insertCSS({ code: CSS });
+        browser.pageAction.setIcon({ tabId: tab.id, path: "icons/off.png" });
+        browser.pageAction.setTitle({ tabId: tab.id, title: TITLE_REMOVE });
+      }
+    });
   }
 }
 
